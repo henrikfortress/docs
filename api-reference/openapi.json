@@ -30,7 +30,7 @@
             "post": {
                 "tags": ["Authentication"],
                 "summary": "Obtain JWT access token",
-                "description": "Exchange API credentials for a short-lived JWT token",
+                "description": "The partner authentication endpoint allows trusted third-party partners to exchange their issued API credentials for a JWT (JSON Web Token) that can be used to authenticate subsequent API requests on behalf of their clients",
                 "security": [],
                 "requestBody": {
                     "required": true,
@@ -42,13 +42,13 @@
                                 "properties": {
                                     "api_key": {
                                         "type": "string",
-                                        "description": "Client API key",
-                                        "example": "CLIENT_KEY"
+                                        "description": "Your unique API key issued by Targeter for your approved partnership",
+                                        "example": "YOUR_ISSUED_PARTNER_KEY"
                                     },
                                     "api_secret": {
                                         "type": "string",
-                                        "description": "Client API secret",
-                                        "example": "CLIENT_SECRET"
+                                        "description": "Your secure API secret issued by Targeter for your approved partnership",
+                                        "example": "YOUR_ISSUED_PARTNER_SECRET"
                                     }
                                 }
                             }
@@ -120,7 +120,7 @@
             "post": {
                 "tags": ["Campaigns"],
                 "summary": "Create or retrieve campaign",
-                "description": "Creates a new campaign in the client's Targeter instance.\n\n- If the provided reference_id has no existing campaign, a new campaign\nis created.\n\n- If a campaign already exists for the reference_id, a link to continue\nwith that campaign is returned.",
+                "description": "The campaign endpoint allows trusted third-party partners to provide campaign data to assist in campaign creation on behalf of their clients based on a reference ID. This endpoint handles both initial creation of new campaigns and linking to existing campaigns.\n\n- If no campaign exists for the provided reference_id, the source object gets uploaded and returns HTTP 201 with a link to the new campaign creation flow\n\n- If a campaign already exists for the reference_id, returns HTTP 200 with a direct link to the existing client campaign",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -131,7 +131,7 @@
                                 "properties": {
                                     "source": {
                                         "type": "object",
-                                        "description": "Container for campaign source metadata",
+                                        "description": "Container for campaign source metadata for your client",
                                         "required": ["material", "name", "reference_id", "target_url"],
                                         "properties": {
                                             "material": {
@@ -140,24 +140,24 @@
                                                     "type": "string",
                                                     "format": "uri"
                                                 },
-                                                "description": "One or more URLs to campaign assets (images or video)",
-                                                "example": ["https://example.com/image.jpg"]
+                                                "description": "One or more URLs to your client's campaign assets (images or video)",
+                                                "example": ["https://client-assets.com/property.jpg"]
                                             },
                                             "name": {
                                                 "type": "string",
-                                                "description": "Campaign name (e.g., property address if the campaign is for real\nestate)",
+                                                "description": "Campaign name for your client (e.g., property address if the campaign is for real estate)",
                                                 "example": "Majorstuenveien 14"
                                             },
                                             "reference_id": {
                                                 "type": "string",
-                                                "description": "External reference (e.g., estate ID from Webmegler)",
-                                                "example": "WM-123456"
+                                                "description": "Your external reference for the client's campaign (e.g., estate ID from your system)",
+                                                "example": "CLIENT-PROP-123456"
                                             },
                                             "target_url": {
                                                 "type": "string",
                                                 "format": "uri",
-                                                "description": "Landing page URL for the campaign",
-                                                "example": "https://kunde.no/bolig/123"
+                                                "description": "Landing page URL for your client's campaign",
+                                                "example": "https://client-website.no/property/123"
                                             }
                                         }
                                     }
@@ -165,10 +165,10 @@
                             },
                             "example": {
                                 "source": {
-                                    "material": ["https://example.com/image.jpg"],
+                                    "material": ["https://client-assets.com/property.jpg"],
                                     "name": "Majorstuenveien 14",
-                                    "reference_id": "WM-123456",
-                                    "target_url": "https://kunde.no/bolig/123"
+                                    "reference_id": "CLIENT-PROP-123456",
+                                    "target_url": "https://client-website.no/property/123"
                                 }
                             }
                         }
@@ -186,7 +186,7 @@
                                             "type": "string",
                                             "format": "uri",
                                             "description": "Link to existing campaign",
-                                            "example": "https://kunde.targeter.tech/campaigns/AbC123"
+                                            "example": "https://storhaug.targeter.tech/campaigns/AbC123"
                                         }
                                     }
                                 }
@@ -194,7 +194,7 @@
                         }
                     },
                     "201": {
-                        "description": "New campaign created",
+                        "description": "Campaign can be created",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -203,8 +203,8 @@
                                         "campaign_link": {
                                             "type": "string",
                                             "format": "uri",
-                                            "description": "Link to newly created campaign",
-                                            "example": "https://kunde.targeter.tech/campaigns?create=true&source_id=WM-123456"
+                                            "description": "Link to prefilled campaign creation form",
+                                            "example": "https://storhaug.targeter.tech/campaigns?create=true&source_id=WM-123456"
                                         }
                                     }
                                 }
