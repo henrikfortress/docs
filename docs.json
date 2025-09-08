@@ -29,8 +29,8 @@
         ]
     },
     "logo": {
-        "light": "/logo/targeter.svg",
-        "dark": "/logo/targeter.svg"
+        "light": "/logo/dark.svg",
+        "dark": "/logo/light.svg"
     },
     "navbar": {
         "links": [
