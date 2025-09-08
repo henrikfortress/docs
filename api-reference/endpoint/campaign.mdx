@@ -1,0 +1,154 @@
+---
+title: 'Campaigns'
+openapi: 'POST /campaign'
+---
+
+## Overview
+
+The campaign endpoint allows trusted third-party partners to provide campaign data to assist in campaign creation on behalf of their clients based on a reference ID. This endpoint handles both initial creation of new campaigns and linking to existing campaigns.
+
+## Request
+
+### Headers
+
+-   `Authorization: Bearer {jwt_token}` (required - obtained using your issued partner credentials)
+-   `Content-Type: application/json`
+
+### Body Parameters
+
+<ParamField path="source" type="object" required>
+    Container for campaign source metadata for your client
+</ParamField>
+
+<ParamField path="source.material" type="array" required>
+    One or more URLs to your client's campaign assets (images or video)
+</ParamField>
+
+<ParamField path="source.name" type="string" required>
+    Campaign name for your client (e.g., property address if the campaign is for real estate)
+</ParamField>
+
+<ParamField path="source.reference_id" type="string" required>
+    Your external reference for the client's campaign (e.g., estate ID from your system)
+</ParamField>
+
+<ParamField path="source.target_url" type="string" required>
+    Landing page URL for your client's campaign
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X POST "https://storhaug.targeter.tech/api/campaign" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source": {
+      "material": ["https://client-assets.com/property.jpg"],
+      "name": "Client Property - Majorstuenveien 14",
+      "reference_id": "CLIENT-PROP-123456",
+      "target_url": "https://client-website.no/property/123"
+    }
+  }'
+```
+
+## Response
+
+### Success Response (200) - Existing Campaign
+
+<ResponseField name="campaign_link" type="string">
+    Link to existing campaign
+</ResponseField>
+
+```json
+{
+    "campaign_link": "https://storhaug.targeter.tech/campaigns/AbC123"
+}
+```
+
+### Success Response (201) - Campaign can be created
+
+<ResponseField name="campaign_link" type="string">
+    Link to prefilled campaign creation form
+</ResponseField>
+
+```json
+{
+    "campaign_link": "https://storhaug.targeter.tech/campaigns?create=true&source_id=WM-123456"
+}
+```
+
+## Error Responses
+
+### 400 - Invalid Request
+
+```json
+{
+    "error": "Missing required field: source.reference_id"
+}
+```
+
+### 401 - Unauthorized
+
+```json
+{
+    "error": "Unauthorized - Invalid or expired token"
+}
+```
+
+### 500 - Server Error
+
+```json
+{
+    "error": "Unexpected server error. Please try again later."
+}
+```
+
+## Behavior
+
+### New Campaign Creation for Client
+
+-   If no campaign exists for the provided `reference_id`, the source object gets uploaded
+-   Returns HTTP 201 with a link to the new campaign creation flow
+-   The user will be able to finish the campaign creation
+
+### Existing Campaign Retrieval for Client
+
+-   If a campaign already exists for the `reference_id`, returns HTTP 200
+-   Provides a direct link to the existing client campaign
+
+## Partner Usage Examples
+
+### Real Estate Campaign for Client
+
+```json
+{
+    "source": {
+        "material": ["https://cdn.megler.no/bilde1.jpg", "https://cdn.megler.no/bilde2.jpg"],
+        "name": "Ivan Bjørndals Gate 9",
+        "reference_id": "123-456-789",
+        "target_url": "https://megler.no/eiendom/123"
+    }
+}
+```
+
+### Marketing Campaign for Client
+
+```json
+{
+    "source": {
+        "material": ["https://cdn.megler.no/video.mp4"],
+        "name": "Sommerkampanje Torshov",
+        "reference_id": "TORSHOV-SUMMER-01012025-123",
+        "target_url": "https://megler.no/kontor/torshov"
+    }
+}
+```
+
+## Partner Best Practices
+
+-   **Unique Reference IDs**: Use unique, meaningful reference IDs from your system to avoid conflicts
+-   **Client Asset URLs**: Ensure all client material URLs are publicly accessible
+-   **Client Landing Pages**: Verify that client target URLs are working and relevant
+-   **Error Handling**: Always check response status codes and handle errors appropriately
+-   **Client Consent**: Ensure you have proper authorization to create campaigns on behalf of your clients

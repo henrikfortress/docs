@@ -1,33 +1,64 @@
 ---
 title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+description: 'Guide to the Targeter REST API'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to the Targeter API
 
-## Welcome
+The Targeter REST API provides trusted third-party partners with programmatic access to our marketing platform. As an approved partner with issued API credentials, you can assist in creation and retrieve marketing campaigns on behalf of your clients.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Base URL
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+All API requests are made to your client-specific endpoint:
 
-## Authentication
+```
+https://{client_slug}.targeter.tech/api
+```
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+Where `{client_slug}` is your unique client identifier (e.g., `storhaug`).
+
+## Partner Authentication
+
+The Targeter API uses JWT (JSON Web Token) authentication for trusted third-party partners. Here's how it works:
+
+1. **Receive Issued Credentials**: Get your API key and secret issued by the Targeter team for your approved partnership
+2. **Exchange for Token**: Use your issued credentials to get a JWT token from `/auth/token`
+3. **Include in Requests**: Add the token to the `Authorization` header for all API calls
+
+### Example Partner Authentication Flow
+
+```bash
+# Step 1: Get JWT token using your issued credentials
+curl -X POST "https://storhaug.targeter.tech/api/auth/token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "api_key": "YOUR_ISSUED_API_KEY",
+    "api_secret": "YOUR_ISSUED_API_SECRET"
+  }'
+
+# Step 2: Use token in API calls on behalf of your clients
+curl -X POST "https://storhaug.targeter.tech/api/campaign" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ ... }'
+```
+
+## Rate Limits
+
+Not yet implemented.
+
+## Error Handling
+
+The API uses standard HTTP status codes and returns detailed error information:
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+    "error": "Missing required field: source.reference_id",
+    "details": [
+        {
+            "path": ["source", "reference_id"],
+            "message": "Reference ID is required"
+        }
+    ]
+}
 ```

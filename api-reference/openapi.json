@@ -1,217 +1,300 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Targeter REST API",
+        "description": "API for managing campaigns in the Targeter platform",
+        "version": "1.0.3",
+        "contact": {
+            "name": "Targeter API Support"
         }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
+    },
+    "servers": [
+        {
+            "url": "https://{client_slug}.targeter.tech/api",
+            "description": "Client-specific Targeter instance",
+            "variables": {
+                "client_slug": {
+                    "description": "Unique client identifier",
+                    "default": "storhaug"
+                }
             }
-          },
-          "required": true
+        }
+    ],
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ],
+    "paths": {
+        "/auth/token": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Obtain JWT access token",
+                "description": "Exchange API credentials for a short-lived JWT token",
+                "security": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["api_key", "api_secret"],
+                                "properties": {
+                                    "api_key": {
+                                        "type": "string",
+                                        "description": "Client API key",
+                                        "example": "CLIENT_KEY"
+                                    },
+                                    "api_secret": {
+                                        "type": "string",
+                                        "description": "Client API secret",
+                                        "example": "CLIENT_SECRET"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "description": "JWT token to be used in Authorization header",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "description": "Token type",
+                                            "example": "Bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "description": "Token validity in seconds",
+                                            "example": 3600
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
+        "/campaign": {
+            "post": {
+                "tags": ["Campaigns"],
+                "summary": "Create or retrieve campaign",
+                "description": "Creates a new campaign in the client's Targeter instance.\n\n- If the provided reference_id has no existing campaign, a new campaign\nis created.\n\n- If a campaign already exists for the reference_id, a link to continue\nwith that campaign is returned.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["source"],
+                                "properties": {
+                                    "source": {
+                                        "type": "object",
+                                        "description": "Container for campaign source metadata",
+                                        "required": ["material", "name", "reference_id", "target_url"],
+                                        "properties": {
+                                            "material": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "format": "uri"
+                                                },
+                                                "description": "One or more URLs to campaign assets (images or video)",
+                                                "example": ["https://example.com/image.jpg"]
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Campaign name (e.g., property address if the campaign is for real\nestate)",
+                                                "example": "Majorstuenveien 14"
+                                            },
+                                            "reference_id": {
+                                                "type": "string",
+                                                "description": "External reference (e.g., estate ID from Webmegler)",
+                                                "example": "WM-123456"
+                                            },
+                                            "target_url": {
+                                                "type": "string",
+                                                "format": "uri",
+                                                "description": "Landing page URL for the campaign",
+                                                "example": "https://kunde.no/bolig/123"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "example": {
+                                "source": {
+                                    "material": ["https://example.com/image.jpg"],
+                                    "name": "Majorstuenveien 14",
+                                    "reference_id": "WM-123456",
+                                    "target_url": "https://kunde.no/bolig/123"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Campaign already exists for the given reference_id",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "campaign_link": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "description": "Link to existing campaign",
+                                            "example": "https://kunde.targeter.tech/campaigns/AbC123"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "New campaign created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "campaign_link": {
+                                            "type": "string",
+                                            "format": "uri",
+                                            "description": "Link to newly created campaign",
+                                            "example": "https://kunde.targeter.tech/campaigns?create=true&source_id=WM-123456"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "Missing required field: source.reference_id"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or expired token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "error": "Unexpected server error. Please try again later."
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
         }
-      }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Send as Authorization: Bearer <token>. Token from /api/auth/token"
             }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
         },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
+        "schemas": {
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "Error message describing what went wrong",
+                        "example": "Missing required field"
+                    },
+                    "details": {
+                        "type": "array",
+                        "description": "Optional validation error details (Zod format)",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "path": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "JSON path to the invalid field",
+                                    "example": ["source", "reference_id"]
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "description": "Human-readable validation message",
+                                    "example": "Reference ID is required"
+                                }
+                            },
+                            "required": ["message"]
+                        }
+                    }
+                },
+                "required": ["error"]
             }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
         }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
-      }
     }
-  }
 }

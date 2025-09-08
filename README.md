@@ -1,44 +1,41 @@
-# Mintlify Starter Kit
+# Targeter API Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+This repository contains the documentation for the Targeter API - a comprehensive campaign management platform for targeted marketing.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Overview
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+Targeter provides a REST API for creating, managing, and monitoring targeted marketing campaigns. This documentation site is built with Mintlify and provides interactive API documentation.
 
 ## Development
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally:
 
-```
+```bash
 npm i -g mint
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Run the following command at the root of your documentation:
 
-```
+```bash
 mint dev
 ```
 
 View your local preview at `http://localhost:3000`.
 
-## Publishing changes
+## API Endpoints
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+-   **Authentication**: `/auth/token` - Obtain JWT tokens
+-   **Campaign Management**: `/campaign` - Create and retrieve campaigns
 
-## Need help?
+## Publishing Changes
 
-### Troubleshooting
+Changes are automatically deployed when pushed to the main branch.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+## Support
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
-- [Mintlify community](https://mintlify.com/community)
+For API support, contact us at [support@targeter.tech](mailto:support@targeter.tech).
+
+## Resources
+
+-   [Targeter Dashboard](https://dashboard.targeter.tech)
+-   [API Status](https://status.targeter.tech)

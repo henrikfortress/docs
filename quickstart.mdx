@@ -1,80 +1,120 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Integration Guide'
+description: 'Integrate your platform with the Targeter API as a trusted third-party partner'
 ---
 
 ## Get started in three steps
 
-Get your documentation site running locally and make your first customization.
+Connect your platform to Targeter and start creating campaigns for your clients.
 
-### Step 1: Set up your local environment
+### Step 1: Receive your issued API credentials
 
 <AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
+    <Accordion icon="key" title="Partner credential issuance">
+        As a trusted third-party partner, you will receive API credentials from Targeter:
+        - **API Key**: Your unique partner identifier issued by Targeter
+        - **API Secret**: Your secure authentication secret issued by Targeter
+        
+        These credentials are required for all API requests and are only provided to approved partners.
+    </Accordion>
+    <Accordion icon="shield-check" title="Understand authentication">
+        Targeter uses JWT (JSON Web Token) authentication for third-party partners:
+        1. Exchange your issued API credentials for a JWT token
+        2. Include the token in the `Authorization` header for all requests
+        3. Tokens expire after 1 hour for security
+        
+        <Tip>Always store your issued API secret securely and never expose it in client-side code. These credentials are for server-to-server communication only.</Tip>
+    </Accordion>
+</AccordionGroup>
+
+### Step 2: Make your first integration call
+
+<AccordionGroup>
+  <Accordion icon="terminal" title="Authenticate with your issued credentials">
+    Start by obtaining a JWT token using your partner credentials:
+
+```bash
+curl -X POST "https://storhaug.targeter.tech/api/auth/token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "api_key": "YOUR_ISSUED_API_KEY",
+    "api_secret": "YOUR_ISSUED_API_SECRET"
+  }'
+```
+
+Response:
+
+```json
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
+    "token_type": "Bearer",
+    "expires_in": 3600
+}
+```
+
   </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
+  <Accordion icon="bullseye" title="Create a campaign for your client">
+    Now create a campaign on behalf of your client using your JWT token:
+
+```bash
+curl -X POST "https://storhaug.targeter.tech/api/campaign" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source": {
+      "material": ["https://client-assets.com/property.jpg"],
+      "name": "Client Property Campaign",
+      "reference_id": "CLIENT-PROP-001",
+      "target_url": "https://client-site.com/property/001"
+    }
+  }'
+```
+
+Response:
+
+```json
+{
+    "campaign_link": "https://storhaug.targeter.tech/campaigns?create=true&source_id=CLIENT-PROP-001"
+}
+```
+
   </Accordion>
 </AccordionGroup>
 
-### Step 2: Deploy your changes
+### Step 3: Complete your integration
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+<Accordion icon="book-open" title="Explore the full API">
+    Now that you've made your first integration call, explore our complete partner API reference:
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
+    - **[Authentication](/api-reference/endpoint/auth)** - Learn about JWT tokens and partner security
+    - **[Campaign Management](/api-reference/endpoint/campaign)** - Create and manage campaigns for your clients
+    - **[API Introduction](/api-reference/introduction)** - Overview of all available partner endpoints
 </Accordion>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Ready to complete your Targeter integration? Here's what you can do next:
 
 <CardGroup cols={2}>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
+<Card title="Partner Authentication" icon="shield-check" href="/api-reference/endpoint/auth">
+    Learn about JWT authentication and security best practices for partners.
 </Card>
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
+<Card title="Campaign API" icon="bullseye" href="/api-reference/endpoint/campaign">
+    Create and manage targeted marketing campaigns for your clients.
 </Card>
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
+<Card title="Partner API Reference" icon="book-open" href="/api-reference/introduction">
+    Explore our complete third-party integration documentation.
 </Card>
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
+<Card title="Partner Support" icon="headset" href="mailto:support@targeter.tech">
+    Get help from our partner integration support team.
 </Card>
 
 </CardGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+    **Need integration help?** Contact our partner support team at [support@targeter.tech](mailto:support@targeter.tech) for assistance with your third-party integration or any questions.
 </Note>
